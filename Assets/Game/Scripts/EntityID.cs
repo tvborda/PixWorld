@@ -18,6 +18,7 @@ public class EntityID : MonoBehaviour {
     public static ushort B_DEBUG = 65535;
     public static ushort B_AIR = 0;
     public static ushort B_BOUNDARIES = 1;
+    public static ushort B_BEDROCK = 2;
 
     #region Blocks Region - Front
     // (B)locks_(F)ront_(Type)_(Sequential)
@@ -35,6 +36,10 @@ public class EntityID : MonoBehaviour {
     public static ushort B_F_DIRT_10 = (ushort)(0010 | B_F_MASK);
     public static ushort B_F_DIRT_11 = (ushort)(0011 | B_F_MASK);
     public static ushort B_F_DIRT_12 = (ushort)(0012 | B_F_MASK);
+    public static ushort B_F_ROCK_01 = (ushort)(0013 | B_F_MASK);
+    public static ushort B_F_ROCK_02 = (ushort)(0014 | B_F_MASK);
+    public static ushort B_F_ROCK_03 = (ushort)(0015 | B_F_MASK);
+    public static ushort B_F_ROCK_04 = (ushort)(0016 | B_F_MASK);
     #endregion
 
     #region Blocks Region - Back
@@ -68,6 +73,7 @@ public class EntityID : MonoBehaviour {
         tiles.Add(EntityID.B_DEBUG, new BlockTile(B_path + "B_Debug"));
         tiles.Add(EntityID.B_AIR, new BlockTile(B_path + "B_Air"));
         tiles.Add(EntityID.B_BOUNDARIES, new BlockTile(B_path + "B_Boundaries"));
+        tiles.Add(EntityID.B_BEDROCK, new BlockTile(B_path + "B_Bedrock"));
 
         #region Blocks Region - Front
         string B_F = B_path + "Front/";
@@ -83,6 +89,10 @@ public class EntityID : MonoBehaviour {
         tiles.Add(EntityID.B_F_DIRT_10, new BlockTile(B_F + "B_F_Dirt_10"));
         tiles.Add(EntityID.B_F_DIRT_11, new BlockTile(B_F + "B_F_Dirt_11"));
         tiles.Add(EntityID.B_F_DIRT_12, new BlockTile(B_F + "B_F_Dirt_12"));
+        tiles.Add(EntityID.B_F_ROCK_01, new BlockTile(B_F + "B_F_Rock_01"));
+        tiles.Add(EntityID.B_F_ROCK_02, new BlockTile(B_F + "B_F_Rock_02"));
+        tiles.Add(EntityID.B_F_ROCK_03, new BlockTile(B_F + "B_F_Rock_03"));
+        tiles.Add(EntityID.B_F_ROCK_04, new BlockTile(B_F + "B_F_Rock_04"));
         #endregion
 
         #region Blocks Region - Back
@@ -111,7 +121,7 @@ public class EntityID : MonoBehaviour {
         if (tiles.TryGetValue(tileId, out t)) {
             if (t.tile == null) {
                 GameObject obj = Instantiate(Resources.Load(t.name, typeof(GameObject))) as GameObject;
-                //obj.transform.SetParent(transform);
+                obj.transform.SetParent(transform);
                 t.tile = obj.GetComponent<Tile>();
                 tiles[tileId] = t;
             }

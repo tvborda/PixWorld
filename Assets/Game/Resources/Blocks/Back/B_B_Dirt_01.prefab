@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zOffest: 0
-  Type: 3
+  Type: 1
   Mat: {fileID: 2100000, guid: f4420507fd91c2e4f8f57e016ff3bfe4, type: 2}
   OffsetX: 512
   OffsetY: 960

@@ -40,14 +40,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zOffest: 0
-  Type: 3
+  Type: 1
   Mat: {fileID: 2100000, guid: f4420507fd91c2e4f8f57e016ff3bfe4, type: 2}
   OffsetX: 704
   OffsetY: 960
   Width: 32
   Height: 32
-  Unit: {x: 0, y: 0}
-  Offset: {x: 0, y: 0}
+  Unit: {x: 0.03125, y: 0.03125}
+  Offset: {x: 0.8125, y: 0.9375}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

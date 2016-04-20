@@ -12,10 +12,10 @@ public class World : MonoBehaviour {
     /// <summary>
     /// Static values across the worlds.
     /// </summary>
-    public static readonly int CHUNK_SIZE = 16; //Chunk size in all worlds, can not be changed per world ( by default )
-    public static readonly int X_RENDER_CHUNKS = 3; //Number of chunks to render on x axis
-    public static readonly int Y_RENDER_CHUNKS = 2; //Number of chunks to render on y axis
-    public static readonly int WORLD_HEIGHT_CHUNKS = 16; // The number of chunks that define the world height.
+    public static int CHUNK_SIZE = 16; //Chunk size in all worlds, can not be changed per world ( by default )
+    public static int X_RENDER_CHUNKS = 3; //Number of chunks to render on x axis
+    public static int Y_RENDER_CHUNKS = 2; //Number of chunks to render on y axis
+    public static int WORLD_HEIGHT_CHUNKS = 16; // The number of chunks that define the world height.
     public enum WorldSizes {
         Small = 32,
         Medium = 64,
@@ -66,7 +66,7 @@ public class World : MonoBehaviour {
     /// <summary>
     /// World Data.
     /// </summary>
-    protected ushort[] worldData;
+    protected ushort[,] worldData;
 
     /// <summary>
     /// Helper variables to calculate tiles totals and iterators. 
@@ -173,12 +173,12 @@ public class World : MonoBehaviour {
         minY = (minY < 0) ? 0 : minY;
         maxY = (maxY > (WORLD_HEIGHT_CHUNKS - 1)) ? (WORLD_HEIGHT_CHUNKS - 1) : maxY;
 
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                if (loadedChunks.ContainsKey(new Vector2(x, y))) {
-                    EnableChunk(x, y);
+        for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+            for (int chunkY = minY; chunkY <= maxY; chunkY++) {
+                if (loadedChunks.ContainsKey(new Vector2(chunkX, chunkY))) {
+                    EnableChunk(chunkX, chunkY);
                 } else {
-                    AddChunk(x, y);
+                    AddChunk(chunkX, chunkY);
                 }
             }
         }
@@ -213,10 +213,10 @@ public class World : MonoBehaviour {
     /// <summary>
     /// Enable a chunk that already exist on the Hierarchy.
     /// </summary>
-    private void EnableChunk(int x, int y) {
+    private void EnableChunk(int chunkX, int chunkY) {
         Chunk chunk;
         //Chunks is already created at this position
-        chunk = loadedChunks[new Vector2(x, y)];
+        chunk = loadedChunks[new Vector2(chunkX, chunkY)];
         if (!chunk.gameObject.activeSelf)
             chunk.Enable();
         chunk.markedToDisable = false;
@@ -226,40 +226,40 @@ public class World : MonoBehaviour {
     /// <summary>
     /// Create a new chunk and place at the Hierarchy.
     /// </summary>
-    private void AddChunk(int x, int y) {
+    private void AddChunk(int chunkX, int chunkY) {
         Chunk chunk;
 
         //We need to create new chunk
-        GameObject obj = new GameObject("Chunk [X: " + x + " Y: " + y + "]");
+        GameObject obj = new GameObject("Chunk [X: " + chunkX + " Y: " + chunkY + "]");
         obj.transform.SetParent(transform);
         obj.layer = gameObject.layer;
 
         chunk = obj.AddComponent<Chunk>();
-        chunk.transform.position = new Vector3(x * CHUNK_SIZE, y * CHUNK_SIZE, transform.position.z);
+        chunk.transform.position = new Vector3(chunkX * CHUNK_SIZE, chunkY * CHUNK_SIZE, transform.position.z);
 
         //Neighbours
         Chunk LeftChunk, RightChunk, TopChunk, BotChunk;
 
         //Get and set neighbours
-        loadedChunks.TryGetValue(new Vector2(x - 1, y), out LeftChunk);
+        loadedChunks.TryGetValue(new Vector2(chunkX - 1, chunkY), out LeftChunk);
         if (LeftChunk) {
             LeftChunk.Right = chunk;
             chunk.Left = LeftChunk;
         }
 
-        loadedChunks.TryGetValue(new Vector2(x + 1, y), out RightChunk);
+        loadedChunks.TryGetValue(new Vector2(chunkX + 1, chunkY), out RightChunk);
         if (RightChunk) {
             RightChunk.Left = chunk;
             chunk.Right = RightChunk;
         }
 
-        loadedChunks.TryGetValue(new Vector2(x, y + 1), out TopChunk);
+        loadedChunks.TryGetValue(new Vector2(chunkX, chunkY + 1), out TopChunk);
         if (TopChunk) {
             TopChunk.Bot = chunk;
             chunk.Top = TopChunk;
         }
 
-        loadedChunks.TryGetValue(new Vector2(x, y - 1), out BotChunk);
+        loadedChunks.TryGetValue(new Vector2(chunkX, chunkY - 1), out BotChunk);
         if (BotChunk) {
             BotChunk.Top = chunk;
             chunk.Bot = BotChunk;
@@ -274,14 +274,14 @@ public class World : MonoBehaviour {
         chunk.Init(this);
 
         //Add to dictionary
-        loadedChunks.Add(new Vector2(x, y), chunk);
+        loadedChunks.Add(new Vector2(chunkX, chunkY), chunk);
 
         //ChunkData savedChunk = SaveManager.LoadChunk(new Vector2(x, y));
         //bool loadedChunk = savedChunk == null ? false : true;
         bool loadedChunk = false;
         if (!loadedChunk) {
             //On chunk created
-            OnChunkCreated(x, y, chunk);
+            OnChunkCreated(chunkX, chunkY, chunk);
         }
 
         //Flag
@@ -292,19 +292,29 @@ public class World : MonoBehaviour {
         if (!CenterTargetInWorld)
             return;
         int worldCenterX = worldWidth / 2;
-        int worldCenterY = worldHeight / 2;
-        target.position = new Vector3(worldCenterX, worldCenterY, transform.position.z);
+        //int worldCenterY = worldHeight / 2;
+        int worldCenterY = height;
+        target.position = new Vector3(worldCenterX, worldCenterY, target.position.z);
+    }
+
+    public void RebuildAll() {
+        Chunk[] c = GetComponentsInChildren<Chunk>();
+        for (int i = 0; i < c.Length; i++) {
+            GameObject.Destroy(c[i].gameObject);
+        }
+        loadedChunks.Clear();
+        Awake();
     }
 
     /// <summary>
     /// Called when Awake has ended.
     /// </summary>
     protected virtual void OnAwake() {
-        worldData = new ushort[worldWidth * worldHeight];
+        worldData = new ushort[worldWidth, worldHeight];
         Debug.LogWarning("[FallBackWorld] Creating Base Tiles with EntityID.B_AIR");
-        for (int x = 0; x < worldWidth; x++) {
-            for (int y = 0; y < worldHeight; y++) {
-                worldData[x + y * CHUNK_SIZE] = EntityID.B_AIR;
+        for (int worldX = 0; worldX < worldWidth; worldX++) {
+            for (int worldY = 0; worldY < worldHeight; worldY++) {
+                worldData[worldX, worldY] = EntityID.B_AIR;
             }
         }
     }
@@ -313,14 +323,19 @@ public class World : MonoBehaviour {
     /// <summary>
     /// Called when chunk is created!
     /// </summary>
-    protected virtual void OnChunkCreated(int x, int y, Chunk chunk) {
-        for (int chunkX = 0; chunkX < CHUNK_SIZE; chunkX++) {
-            for (int chunkY = 0; chunkY < CHUNK_SIZE; chunkY++) {
-                int worldX = (x * CHUNK_SIZE) + chunkX;
-                int worldY = (y * CHUNK_SIZE) + chunkY;
-                chunk.SetTileLocal(chunkX, chunkY, worldData[worldX + worldY * CHUNK_SIZE]);
+    protected virtual void OnChunkCreated(int chunkX, int chunkY, Chunk chunk) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                int worldX = (chunkX * CHUNK_SIZE) + x;
+                int worldY = (chunkY * CHUNK_SIZE) + y;
+                chunk.SetTileLocal(x, y, worldData[worldX, worldY]);
             }
         }
     }
+
+    public void Log(string msg) {
+        Debug.Log("[" + worldName + "] " + msg);
+    }
+
 
 }

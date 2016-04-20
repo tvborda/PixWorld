@@ -7,10 +7,13 @@ public class WorldDebugGUI : MonoBehaviour {
     private int totalTilesPerChunk = World.CHUNK_SIZE * World.CHUNK_SIZE;
 
     private void OnGUI() {
+        int totalTilesInWorld = (int)GetComponentInChildren<World>().worldSize * World.WORLD_HEIGHT_CHUNKS * World.CHUNK_SIZE * World.CHUNK_SIZE;
+
         GUILayout.BeginHorizontal();
-        GUILayout.Label(totalChunks + " chunks | ", style);
+        GUILayout.Label(totalChunks + " rendered chunks | ", style);
         GUILayout.Label(totalTilesPerChunk + " tiles per chunk | ", style);
-        GUILayout.Label((totalChunks * totalTilesPerChunk) + " total squares", style);
+        GUILayout.Label((totalChunks * totalTilesPerChunk) + " total rendered tiles | ", style);
+        GUILayout.Label(totalTilesInWorld +  " total world tiles", style);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
@@ -18,11 +21,20 @@ public class WorldDebugGUI : MonoBehaviour {
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("World ground level: " + GetComponent<World>().height, style);
+        GUILayout.Label("World ground level: " + GetComponentInChildren<World>().height, style);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("World size: " + GetComponent<World>().worldSize, style);
+        GUILayout.Label("World size: " + GetComponentInChildren<World>().worldSize, style);
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        World[] worlds = GetComponentsInChildren<World>();
+        foreach (World w in worlds) {
+            if(GUILayout.Button("Rebuild " + w.name)) {
+                w.RebuildAll();
+            }
+        }
         GUILayout.EndHorizontal();
     }
 

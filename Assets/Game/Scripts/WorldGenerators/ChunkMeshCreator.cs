@@ -39,7 +39,7 @@ public class ChunkMeshCreator {
 
     private Chunk chunk;
     private ChunkMeshCreatorPool pool;
-    private ushort[] data;
+    private ushort[,] chunkData;
 
 
     public ChunkMeshCreator(ChunkMeshCreatorPool pool) {
@@ -54,7 +54,7 @@ public class ChunkMeshCreator {
     }
 
 
-    public void Build(Chunk chunk, ushort[] data, MeshFilter filter, MeshRenderer render, MeshCollider coll) {
+    public void Build(Chunk chunk, ushort[,] chunkData, MeshFilter filter, MeshRenderer render, MeshCollider coll) {
 
         if (IsDone) {
             //Debug.LogError("How did you get here?");
@@ -62,7 +62,7 @@ public class ChunkMeshCreator {
         }
 
         this.chunk = chunk;
-        this.data = data;
+        this.chunkData = chunkData;
         this.filter = filter;
         this.render = render;
         this.coll = coll;
@@ -82,27 +82,27 @@ public class ChunkMeshCreator {
 
     private void ThreadFunction() {
         IsDone = false;
-        for (int i = 0; i < data.Length; i++) {
-            int y = i / World.CHUNK_SIZE;
-            int x = i % World.CHUNK_SIZE;
+        for (int x = 0; x < chunkData.GetLength(0); x++) {
+            for (int y = 0; y < chunkData.GetLength(1); y++) {
 
-            Tile tile = chunk.myWorld.entityID.GetTile(data[i]);
+                Tile tile = chunk.myWorld.entityID.GetTile(chunkData[x, y]);
 
-            if (tile.Type == TileType.ColliderOffRenderOff)
-                continue;
+                if (tile.Type == TileType.ColliderOffRenderOff)
+                    continue;
 
-            int index = Maps.IndexOf(tile.Mat);
+                int index = Maps.IndexOf(tile.Mat);
 
-            if (index == -1) {
-                Maps.Add(tile.Mat);
-                Triangles.Add(new List<int>());
-                index = Maps.Count - 1;
+                if (index == -1) {
+                    Maps.Add(tile.Mat);
+                    Triangles.Add(new List<int>());
+                    index = Maps.Count - 1;
+                }
+
+                if (tile.Type == TileType.ColliderOnRenderOff || tile.Type == TileType.ColliderOnRenderOn)
+                    AddColl(x, y);
+
+                CreateSquare(x, y, index, tile);
             }
-
-            if (tile.Type == TileType.ColliderOnRenderOff || tile.Type == TileType.ColliderOnRenderOn)
-                AddColl(x, y);
-
-            CreateSquare(x, y, index, tile);
         }
 
         MapArray = Maps.ToArray();

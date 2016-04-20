@@ -334,6 +334,7 @@ public static class Noise {
 	}
 	
 	public static NoiseSample Perlin2D (Vector3 point, float frequency) {
+        frequency = 1 / frequency;
 		point *= frequency;
 		int ix0 = Mathf.FloorToInt(point.x);
 		int iy0 = Mathf.FloorToInt(point.y);

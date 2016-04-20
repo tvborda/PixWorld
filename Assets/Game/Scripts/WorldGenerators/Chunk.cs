@@ -9,7 +9,7 @@ public class Chunk : MonoBehaviour {
     /// <summary>
     /// Chunk data.
     /// </summary>
-    public ushort[] Data;
+    public ushort[,] chunkData;
 
     /// <summary>
     /// Neighbours.
@@ -66,8 +66,8 @@ public class Chunk : MonoBehaviour {
     public void Init(World world) {
         myWorld = world;
 
-        if (Data == null) {
-            Data = new ushort[World.CHUNK_SIZE * World.CHUNK_SIZE];
+        if (chunkData == null) {
+            chunkData = new ushort[World.CHUNK_SIZE, World.CHUNK_SIZE];
         }
         //    } else { //Data was set before the chunk is initialized - this is only possible when chunk was loaded
 
@@ -94,7 +94,7 @@ public class Chunk : MonoBehaviour {
             generating = true;
             flaggedToUpdate = false;
             MeshCreator = myWorld.MeshCreatorPool.GetMeshCreator();
-            MeshCreator.Build(this, Data, Filter, Render, Coll);
+            MeshCreator.Build(this, chunkData, Filter, Render, Coll);
         } else {
             //Flag it for future updates
             flaggedToUpdate = true;
@@ -150,7 +150,7 @@ public class Chunk : MonoBehaviour {
         //if (sendEvents && newTile.ID != oldTile.ID)
         //    oldTile.OnTileRemoved(x, y, this);
 
-        Data[x + y * World.CHUNK_SIZE] = tile;
+        chunkData[x, y] = tile;
 
         //Get tile
         //if (sendEvents && newTile.ID != oldTile.ID)
@@ -192,7 +192,7 @@ public class Chunk : MonoBehaviour {
                 return ushort.MaxValue;
         }
 
-        return Data[x + y * World.CHUNK_SIZE];
+        return chunkData[x, y];
     }
 
 

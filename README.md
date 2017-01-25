@@ -1,2 +1,2 @@
 # PixWorld
-2D Study about procedural world generation using different noises algorithms.
+Unity3D - 2D Study about Procedural World Generation using different noises algorithms.
